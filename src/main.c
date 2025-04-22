@@ -1,7 +1,10 @@
 #include "stm32l432xx.h"
 #include "ee14lib.h"
 #include "Adafruit_Fingerprint.h"
+#include "uart.c"
 #include <stdio.h>
+
+#define BAUDRATE BAUDRATE
 
 UART_HandleTypeDef huart1;
 Adafruit_Fingerprint finger(&huart1);
@@ -13,29 +16,11 @@ int _write(int file, char *data, int len) {
         return len;
 }
 
-void uart1_init(void) {
-    __HAL_RCC_USART1_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-
-    gpio_config_mode(D0, ALTERNATE_FUNCTION);  // PA10 = RX
-    gpio_config_alternate_function(D0, 7);
-
-    gpio_config_mode(D1, ALTERNATE_FUNCTION);  // PA9 = TX
-    gpio_config_alternate_function(D1, 7);
-
-    huart1.Instance = USART1;
-    huart1.Init.BaudRate = 57600;
-    huart1.Init.WordLength = UART_WORDLENGTH_8B;
-    huart1.Init.StopBits = UART_STOPBITS_1;
-    huart1.Init.Parity = UART_PARITY_NONE;
-    huart1.Init.Mode = UART_MODE_TX_RX;
-    huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-    HAL_UART_Init(&huart1);
-}
-
+// Initializing connection to fingerprint sensor
+// Arguments: None
+// Returns: None, check serial monitor for debug messages
 void setup_fingerprint(void) {
-    finger.begin(57600);
+    finger.begin(BAUDRATE);
     if (finger.verifyPassword()) {
         printf("Fingerprint sensor found!\n");
     } else {
@@ -44,6 +29,10 @@ void setup_fingerprint(void) {
     }
 }
 
+// Enroll (store) new fingerprint
+// Arguments: Fingerprint ID, must be unique 16-bit integer
+// Returns: -1 on fingerprint sensor error, 0 on successful enrollment.
+//          Check serial monitor for debug messages.
 int enroll_fingerprint(uint16_t id) {
     printf("Place finger to enroll...\n");
     while (finger.getImage() != FINGERPRINT_OK);
@@ -68,6 +57,10 @@ int enroll_fingerprint(uint16_t id) {
     }
 }
 
+// Match scanned fingerprint to stored prints
+// Arguments: None
+// Returns: -1 on failure to match or other error.
+//          Fingerprint ID on successful match.
 int match_fingerprint(void) {
     printf("Place finger to match...\n");
     if (finger.getImage() != FINGERPRINT_OK) return -1;
@@ -82,16 +75,39 @@ int match_fingerprint(void) {
     }
 }
 
+
+
 int main(void) {
     HAL_Init();
-    SystemClock_Config();  // Assuming this exists in your project
-    uart1_init();
+    //SystemClock_Config();  // Probably unecessary
+    
+    // Enable D0/D1 for UART communication with fingerprint sensor
+    if (gpio_config_mode(D0, ALTERNATE_FUNCTION) != EE14Lib_Err_OK) {   // RX
+        printf("Failed to configure pin D0.\n");
+    };
+    if (gpio_config_alternate_function(D0, 7) != EE14Lib_Err_OK) {  // AF7 for USART1_RX
+        printf("Failed to connect UART for pin D0.\n");
+    };    
+    if (gpio_config_mode(D1, ALTERNATE_FUNCTION) != EE14Lib_Err_OK) {   // TX
+        printf("Failed to configure pin D1.\n");
+    };
+    if (gpio_config_alternate_function(D1, 7) != EE14Lib_Err_OK) { // AF7 for USART1_TX
+        printf("Failed to connect UART for pin D1.\n");
+    };     
+
+    // Enable USART1 clock
+    RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+
+    // Initialize USART1
+    USART_init(USART1, true, true, BAUDRATE);
+    huart1.Instance = USART1;
+
     host_serial_init();  // For printf() output via ST-Link
 
     printf("Starting fingerprint test...\n");
     setup_fingerprint();
 
-    // Uncomment to enroll a fingerprint
+    // Uncomment to add a fingerprint with ID 1
     // enroll_fingerprint(1);
 
     // Uncomment to match a fingerprint
