@@ -30,6 +30,8 @@ typedef int EE14Lib_Err;
 #define PULL_DOWN 0b10
 // Both on is an error
 
+#define BAUDRATE 57600
+
 EE14Lib_Err gpio_config_mode(EE14Lib_Pin pin, unsigned int mode);
 EE14Lib_Err gpio_config_pullup(EE14Lib_Pin pin, unsigned int mode);
 EE14Lib_Err gpio_config_alternate_function(EE14Lib_Pin pin, unsigned int function);
