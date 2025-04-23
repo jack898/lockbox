@@ -5,9 +5,11 @@
  * @file Adafruit_Fingerprint.h
  */
 
-#include "main.h"
+//#include "main.h"
 #include "stdlib.h"
-#include "UART_Interface.h"
+//#include "UART_Interface.h"
+#include "stm32l4xx_hal.h"
+#include "stm32l4xx_hal_uart.h"
 
 #include <cstdarg>
 #include <cstring>

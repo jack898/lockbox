@@ -80,15 +80,15 @@ Adafruit_Fingerprint::Adafruit_Fingerprint(UART_HandleTypeDef *huart,
     @param  baudrate Sensor's UART baud rate (usually 57600, 9600 or 115200)
 */
 /**************************************************************************/
-/*void Adafruit_Fingerprint::begin(uint32_t baudrate) {
-  delay(1000); // one second delay to let the sensor 'boot up'
+void Adafruit_Fingerprint::begin(uint32_t baudrate) {
+  HAL_Delay(1000); // one second delay to let the sensor 'boot up'
 
-  HAL_UART_Init(myHuart);
+  //HAL_UART_Init(myHuart);
 #if defined(__AVR__) || defined(ESP8266) || defined(FREEDOM_E300_HIFIVE1)
   if (swSerial)
     swSerial->begin(baudrate);
 #endif
-}*/
+}
 
 /**************************************************************************/
 /*!
@@ -577,29 +577,30 @@ Adafruit_Fingerprint::getStructuredPacket(Adafruit_Fingerprint_Packet *packet,
 
 
 void Adafruit_Fingerprint::debug_print(const char *format, ...) {
-  char buffer[256];
-  va_list args;
-  va_start(args, format);
-  vsnprintf(buffer, sizeof(buffer), format, args);
-  va_end(args);
+  // char buffer[256];
+  // va_list args;
+  // va_start(args, format);
+  // vsnprintf(buffer, sizeof(buffer), format, args);
+  // va_end(args);
 
-  HAL_UART_Transmit(&huart2, (uint8_t *)buffer, strlen(buffer), 30);
+  // HAL_UART_Transmit(&huart2, (uint8_t *)buffer, strlen(buffer), 30);
 }
 
 void Adafruit_Fingerprint::debug_println(const char *format, ...) {
-  char buffer[256];
-  va_list args;
-  va_start(args, format);
-  vsnprintf(buffer, sizeof(buffer), format, args);
-  va_end(args);
+//   char buffer[256];
+//   va_list args;
+//   va_start(args, format);
+//   vsnprintf(buffer, sizeof(buffer), format, args);
+//   va_end(args);
 
-  size_t len = strlen(buffer);
-  if (len < sizeof(buffer) - 2) {
-    // Add "\r\n" at the end of the string
-    buffer[len++] = '\r';
-    buffer[len++] = '\n';
-  }
+//   size_t len = strlen(buffer);
+//   if (len < sizeof(buffer) - 2) {
+//     // Add "\r\n" at the end of the string
+//     buffer[len++] = '\r';
+//     buffer[len++] = '\n';
+//   }
   
-  HAL_UART_Transmit(&huart2, (uint8_t *)buffer, len, 30);
+//   HAL_UART_Transmit(&huart2, (uint8_t *)buffer, len, 30);
+// 
 }
 

@@ -3,14 +3,8 @@
  * Steven Bell <sbell@ece.tufts.edu>, based almost entirely on work from Joel Grodstein
  * January 2025
  */
-#include "stm32l432xx.h"
-#include <stdbool.h>
 
-static void USART_Init (USART_TypeDef *USARTx, bool tx_en, bool rx_en,int baud);
-static void UART2_GPIO_Init(void);
-static void USART_Delay(uint32_t us);
-
-static void set_gpio_alt_func (GPIO_TypeDef *gpio,unsigned int pin,unsigned int func);
+#include "uart.h"
 
 // The Nucleo 432 wires PA2 to the ST-Link's VCP_TX pin via AF7, and PA15 to
 // VCP_RX via AF3.
@@ -18,7 +12,7 @@ static void set_gpio_alt_func (GPIO_TypeDef *gpio,unsigned int pin,unsigned int 
 // The alternate-function designation presumably sets most on the GPIO pin's
 // internals. However, we still set them here to high-speed, pullup-only,
 // push-pull drive.
-static void UART2_GPIO_Init(void) {
+void UART2_GPIO_Init(void) {
     set_gpio_alt_func (GPIOA,  2, 7);
     set_gpio_alt_func (GPIOA, 15, 3);
 
@@ -41,7 +35,7 @@ static void UART2_GPIO_Init(void) {
 // Set for 8 data bits, 1 start & 1 stop bit, 16x oversampling, 9600 baud.
 // And by default, we also get no parity, no hardware flow control (USART_CR3),
 // asynch mode (USART_CR2).
-static void USART_Init (USART_TypeDef *USARTx, bool tx_en, bool rx_en,int baud){
+void USART_Init (USART_TypeDef *USARTx, bool tx_en, bool rx_en,int baud){
     // Disable the USART.
     USARTx->CR1 &= ~USART_CR1_UE;  // Disable USART
 
@@ -109,7 +103,7 @@ void USART_Delay(uint32_t us) {
 
 
 // Turn on the clock for a GPIO port.
-static void gpio_enable_port (GPIO_TypeDef *gpio) {
+void gpio_enable_port (GPIO_TypeDef *gpio) {
     unsigned long field;
     if (gpio==GPIOA)      field=RCC_AHB2ENR_GPIOAEN;
     else if (gpio==GPIOB) field=RCC_AHB2ENR_GPIOBEN;
