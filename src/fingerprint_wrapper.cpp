@@ -1,17 +1,16 @@
 #include "fingerprint_wrapper.h"
 
-// This function is called by printf() to handle the text string
-// We want it to be sent over the serial terminal, so we just delegate to that function
-int _write(int file, char *data, int len) {
-        serial_write(USART2, data, len);
-        return len;
-}
+UART_HandleTypeDef huart1;
+Adafruit_Fingerprint finger(&huart1);
+
+
 
 // Initializing connection to fingerprint sensor
 // Arguments: None
 // Returns: None, check serial monitor for debug messages
 void setup_fingerprint(void) {
         finger.begin(BAUDRATE);
+        huart1.Instance = USART1;
         if (finger.verifyPassword()) {
             printf("Fingerprint sensor found!\n");
         } else {

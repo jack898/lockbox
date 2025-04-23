@@ -55,4 +55,8 @@ void serial_write(USART_TypeDef *USARTx, const char *buffer, int len);
 // Spin wait until we have a byte.
 char serial_read(USART_TypeDef *USARTx);
 
+void USART_Init (USART_TypeDef *USARTx, bool tx_en, bool rx_en,int baud);
+void UART2_GPIO_Init(void);
+void USART_Delay(uint32_t us);
+
 #endif

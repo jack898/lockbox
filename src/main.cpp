@@ -1,14 +1,16 @@
 // Lockbox: main.c
 // Contains main driver code for project
 
-#include "stm32l432xx.h"
-#include "ee14lib.h"
-#include "fingerprint_wrap.h"
-#include "uart.c"
-#include <stdio.h>
+
+#include "main.h"
+#include "fingerprint_wrapper.h"
+
+//UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
+
 
 // This function is called by printf() to handle the text string
-// We want it to be sent over the serial terminal, so we just delegate to that function
+//We want it to be sent over the serial terminal, so we just delegate to that function
 int _write(int file, char *data, int len) {
         serial_write(USART2, data, len);
         return len;
@@ -16,7 +18,14 @@ int _write(int file, char *data, int len) {
 
 int main(void) {
     HAL_Init();
-    //SystemClock_Config();  // Probably unecessary
+    host_serial_init();
+
+    // FOR PRINTF DEBUGGING
+    // while (1) {
+    //     printf("hello world!\n");
+    //     HAL_Delay(2000);
+    // }
+
     
     // Enable D0/D1 for UART communication with fingerprint sensor
     if (gpio_config_mode(D0, ALTERNATE_FUNCTION) != EE14Lib_Err_OK) {   // RX
@@ -36,8 +45,7 @@ int main(void) {
     RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
 
     // Initialize USART1
-    USART_init(USART1, true, true, BAUDRATE);
-    huart1.Instance = USART1;
+    USART_Init(USART1, true, true, BAUDRATE);
 
     host_serial_init();  // For printf() output via ST-Link
 

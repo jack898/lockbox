@@ -7,7 +7,9 @@
 
 #include "main.h"
 #include "stdlib.h"
-#include "UART_Interface.h"
+//#include "UART_Interface.h"
+#include "stm32l4xx_hal.h"
+#include "stm32l4xx_hal_uart.h"
 
 #include <cstdarg>
 #include <cstring>
@@ -126,6 +128,8 @@
 
 #define DEFAULTTIMEOUT 6000 //!< UART reading timeout in milliseconds
 #define TRANSMIT_TIMEOUT 20
+
+
 
 ///! Helper class to craft UART packets
 struct Adafruit_Fingerprint_Packet {
