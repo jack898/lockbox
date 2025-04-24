@@ -48,17 +48,6 @@ EE14Lib_Err gpio_config_alternate_function(EE14Lib_Pin pin, unsigned int functio
 void gpio_write(EE14Lib_Pin pin, bool value);
 bool gpio_read(EE14Lib_Pin pin);
 
-EE14Lib_Err timer_config_pwm(TIM_TypeDef* const timer, const unsigned int freq_hz);
-EE14Lib_Err timer_config_channel_pwm(TIM_TypeDef* const timer, const EE14Lib_Pin pin, const unsigned int duty);
-
-void adc_init(void);
-EE14Lib_Err adc_config_single(const EE14Lib_Pin pin);
-unsigned int adc_read_single(void);
-
-void i2c_init(I2C_TypeDef* i2c, EE14Lib_Pin scl, EE14Lib_Pin sda);
-bool i2c_write(I2C_TypeDef* i2c, unsigned char device_address, unsigned char* data, unsigned char len);
-bool i2c_read(I2C_TypeDef* i2c, unsigned char device_address, unsigned char* data, unsigned char len);
-
 // Initialize the serial port
 void host_serial_init();
 

@@ -2,6 +2,8 @@
  * www.ece.tufts.edu/ee/14
  * Steven Bell <sbell@ece.tufts.edu>, based almost entirely on work from Joel Grodstein
  * January 2025
+ * 
+ * Modified April 2025 by Jack Burton to enable USART1, other minor changes
  */
 #include "stm32l432xx.h"
 #include <stdbool.h>
@@ -15,24 +17,8 @@
 // The alternate-function designation presumably sets most on the GPIO pin's
 // internals. However, we still set them here to high-speed, pullup-only,
 // push-pull drive.
+// MODIFIED: Enables USART1 and USART2
 static void UART2_GPIO_Init(void) {
-    // set_gpio_alt_func (GPIOA,  2, 7);
-    // set_gpio_alt_func (GPIOA, 3, 7);
-
-    // // Set PA2 and PA3 to very-high-speed. This changes the output slew rate.
-    // GPIOA->OSPEEDR |=   0x3<<(2*2) | 0x3<<(2*3);
-
-    // // Both PA2 and PA3 are in pullup/down mode 01, which means pull-up only.
-    // // This is arguably not needed. During normal operation, we're doing push-
-    // // pull drive and so don't need a pullup or pulldown. Some people like a
-    // // pullup to stop the data line from bouncing during reset before any MCU
-    // // drives it -- but our pullup won't turn on until this code runs, anyway!
-    // GPIOA->PUPDR   &= ~((0x3<<(2*2)) | (0x3<<(2*3)));	// Clear bits
-    // GPIOA->PUPDR   |=   (0x1<<(2*2)) | (0x1<<(2*3));	// Set each to 01.
-
-    // // Both PA2 and PA3 are push-pull (which is the reset default, anyway).
-    // GPIOA->OTYPER  &= ~((0x3<<(2*2)) | (0x3<<(2*3)));	// Clear bits
-        // --- USART2 (PA2 = TX, PA3 = RX) ---
         set_gpio_alt_func(GPIOA, 2, 7);  // USART2_TX
         set_gpio_alt_func(GPIOA, 3, 7);  // USART2_RX
     
@@ -117,10 +103,6 @@ void UART_write_byte (USART_TypeDef *USARTx, char data) {
 // Assume that each usec of delay is about 13 times around the NOP loop.
 // That's probably about right at 80 MHz (maybe a bit too slow).
 void USART_Delay(uint32_t us) {
-        // // Roughly calibrated for 80 MHz: each iteration ~1 cycle per NOP + loop overhead
-        // for (uint32_t i = 0; i < us * 10; i++) {
-        //     __asm__ volatile ("nop");
-        // }
     uint32_t time = 100*us/7;    
     while(--time);   
 }
@@ -167,9 +149,10 @@ void set_gpio_alt_func (GPIO_TypeDef *gpio, unsigned int pin, unsigned int func)
     gpio->PUPDR &= ~(3UL <<(2*pin));		// No PUP or PDN
 }
 
-// Initializes USART1 and USART2
+// MODIFIED: Initializes USART1 and USART2
 void host_serial_init() {
     int baud=9600;
+    int fingerprint_baud = 57600;
 
     // Enable USART 2 clock
     RCC->APB1ENR1 |= RCC_APB1ENR1_USART2EN;  
@@ -198,7 +181,7 @@ void host_serial_init() {
     UART2_GPIO_Init();
 
     USART_Init (USART2, 1, 1, baud);	// Set 9600 for serial montior USART
-    USART_Init (USART1, 1, 1, 57600); // Set fingerprint USART baud rate to 57600
+    USART_Init (USART1, 1, 1, fingerprint_baud); // Set fingerprint USART baud rate to 57600
 }
 
 // Very basic function: send a character string to the UART, one byte at a time.
@@ -218,12 +201,9 @@ void serial_write (USART_TypeDef *USARTx, const char *buffer, int len) {
     USARTx->ISR &= ~USART_ISR_TC;
 }
 
-char serial_read (USART_TypeDef *USARTx) {
-    // The SR_RXNE (Read data register not empty) bit is set by hardware.
-    // We spin wait until that bit is set
-    // while (!(USARTx->ISR & USART_ISR_RXNE))
-	// ;
 
+// MODIFICATIONS: Added 1000 tick timeout to prevent hanging in serial_read
+char serial_read (USART_TypeDef *USARTx) {
     for (int i = 0; !(USARTx->ISR & USART_ISR_RXNE) && i < 1000; i++);
 
     // Reading USART_DR automatically clears the RXNE flag 
