@@ -55,6 +55,10 @@ void host_serial_init();
 // Spin wait after each byte until the UART is ready for the next byte.
 void serial_write(USART_TypeDef *USARTx, const char *buffer, int len);
 
+EE14Lib_Err timer_config_pwm(TIM_TypeDef* const timer, const unsigned int freq_hz);
+EE14Lib_Err timer_config_channel_pwm(TIM_TypeDef* const timer, const EE14Lib_Pin pin, const unsigned int duty);
+
+
 // Spin wait until we have a byte.
 char serial_read(USART_TypeDef *USARTx);
 void USART_Delay(uint32_t us);

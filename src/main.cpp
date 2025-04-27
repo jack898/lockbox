@@ -32,6 +32,7 @@
 #define CHARBUFFER1 0x01
 #define CHARBUFFER2 0x02
 
+
 /* delay_ms
 Purpose: Lazy delay with for loop, approximately in milliseconds
 Arguments: 
@@ -191,15 +192,32 @@ int main() {
     // Initialize GPIO/UART
     host_serial_init();
     gpio_config_mode(D9, OUTPUT);
+    timer_config_pwm(TIM2, 50); // Start 50 Hz PWM
+
+    
+    volatile int duty_closed = 51; // 0 degrees
+    volatile int duty_open = 77; // 90 degrees, lid open
+    timer_config_channel_pwm(TIM2, A7, duty_closed); 
+
+    // Configure sensor pin
+    gpio_config_mode(A6, INPUT);
 
     // "wake up" sensor
     uint8_t password_args[4] = {0x00, 0x00, 0x00, 0x00};
     send_fingerprint_command(FINGERPRINT_VERIFYPASSWORD, password_args, 4);
 
+
+
+
     // Check for matching finger repeatedly
     while (1) {
         serial_write(USART2, "Place finger to match...\n", 25);
         write_only_match();
+        if (gpio_read(A6)) { // If finger match, open box, wait, then close
+            timer_config_channel_pwm(TIM2, A7, duty_open);
+            delay_ms(400);
+            timer_config_channel_pwm(TIM2, A7, duty_closed);
+        }
         delay_ms(300);
     }
 
