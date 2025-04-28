@@ -15,7 +15,7 @@ An attached Analog Discovery 2 (AD2) **monitors the UART** traffic using **UART 
 **Platform:** PlatformIO  
 **Board:** ST Nucleo-L432KC  
 **Framework:** CMSIS  
-**Peripherals:** [Adafruit Optical Fingerprint Sensor (Product 4690)](https://www.adafruit.com/product/4690), [High Power, High Torque Micro Servo](https://www.adafruit.com/product/2307)
+**Peripherals:** [Adafruit Optical Fingerprint Sensor (Product 4690)](https://www.adafruit.com/product/4690), [High Power, High Torque Micro Servo](https://www.adafruit.com/product/2307)                                                                                                                     
 **External Tool:** Analog Discovery 2 (AD2) with WaveForms
 
 
