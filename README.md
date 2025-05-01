@@ -3,7 +3,7 @@ Jack Burton, Katherine Deane, Brady Kamali
 ### Overview
 
 This project interfaces the Adafruit basic fingerprint sensor with the STM32L432KC using UART.
-It handles **fingerprint enrollment** and **matching** over UART, and uses fingerprint scanning to open a lockbox when a valid fingerprint is detected.
+It handles **fingerprint enrollment** and **matching** over UART, and uses fingerprint scanning to open a lockbox when an authenticated fingerprint is scanned.
 
 An attached Analog Discovery 2 (AD2) **monitors the UART** traffic using **UART Spy** mode. A helper script (`Match_detect.js`) detects when a **successful fingerprint match** occurs by identifying the signature `0x07 0x00 0x07 0x00` in the fingerprint sensor response packets and **sets an output pin (DIO6) high**. We then drive a servo motor to rotate and open the lockbox.
 
